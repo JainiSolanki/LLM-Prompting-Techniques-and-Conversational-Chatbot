@@ -36,11 +36,15 @@ def subtract_two_numbers(a: int, b: int) -> int:
     # The cast is necessary as returned tool call arguments don't always conform exactly to schema
     return int(a) - int(b)
 
+@tool
+def count_words(text : str) -> int:
+    """Count the number of words in the input String."""
+    return len(text.split())
 
-tools_list = [add_two_numbers, subtract_two_numbers]
+tools_list = [add_two_numbers, subtract_two_numbers, count_words]
 
 llm = ChatGroq(
-    model="llama-3.1-8b-instant",
+    model="llama-3.3-70b-versatile",
     temperature=0.2,
 )
 
@@ -52,9 +56,10 @@ llm = ChatGroq(
 
 agent_prompt = """
 You are a helpful assistant. 
-Answer the user's question to the best of your ability.
-Give output in 2-3 sentences only.
-"""
+You can perform basic arithmetic operations like addition and subtraction using the tools provided.
+When you receive a user query, determine if it requires the use of any of the tools.
+If it does, call the appropriate tool with the correct arguments to get the answer.
+If the query does not require any tool, answer it directly."""
 
 agent = create_agent(
     model=llm,
@@ -82,3 +87,5 @@ get_response_from_agent("What is five added by seven?")
 get_response_from_agent(
     "If i had a dozen apples and gave half of them to my team, how many will be left to distribute?"
 )
+
+get_response_from_agent("How many words are in the sentence 'I am learning LangChain' ?")
